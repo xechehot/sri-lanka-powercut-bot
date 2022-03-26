@@ -7,6 +7,8 @@ name = "pypi"
 beautifulsoup4 = "*"
 pdfminer = "*"
 python-telegram-bot = "*"
+requests = "*"
+pytest = "*"
 
 [dev-packages]
 
