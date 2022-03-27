@@ -34,6 +34,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 # since context is an unused local variable.
 # This being an example and not having context present confusing beginners,
 # we decided to have it present as context.
+from lib.exception import PdfParseError
 from lib.pdf_parser import PdfParser
 from lib.web_parser import PowerCutWebParser
 
@@ -108,14 +109,22 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
 
     if len(context.args) > 1:
         date_candidate = context.args[1]
+        # TODO добавить валидацию формата даты, если формат неверный - сообщить об этом
         if date_candidate in pdf_list:
             logging.info('Choosing date from message...')
             dt = date_candidate
             pdf_link = pdf_list[dt]
+        else:
+            logging.info('Rejecting wrong date...')
+            update.message.reply_text(f'Sorry, schedule for date "{date_candidate}" is not available.')
+            return
     logging.info('Selected %s, %s', dt, pdf_link)
     pdf_file = requests.get(pdf_link, verify=False).content
-    groups, periods = pdf_parser.parse_pdf(BytesIO(pdf_file))
-
+    try:
+        groups, periods = pdf_parser.parse_pdf(BytesIO(pdf_file))
+    except PdfParseError:
+        update.message.reply_markdown(f'Parsing pdf file failed, but you can see it [here]({pdf_link}) manually.')
+        return
     group_name = context.args[0].upper()
     if not re.match('[A-Z]', group_name):
         update.message.reply_text('Please select a proper group using one letter')
