@@ -1,7 +1,7 @@
 import logging
 
 # Enable logging
-from telegram.ext import CommandHandler, Updater
+from telegram.ext import CommandHandler, Updater, PicklePersistence
 
 from dotenv import dotenv_values
 from lib.bot import start, set_timer, unset
@@ -17,7 +17,8 @@ def main() -> None:
     config = dotenv_values(".env")
     """Run bot."""
     # Create the Updater and pass it your bot's token.
-    updater = Updater(config['BOT_TOKEN'])
+    persistence = PicklePersistence(filename='powercut.pickle')
+    updater = Updater(config['BOT_TOKEN'], persistence=persistence)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
