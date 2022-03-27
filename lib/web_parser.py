@@ -10,9 +10,9 @@ class PowerCutWebParser(object):
     def __init__(self, url):
         self.url = url
 
-    @staticmethod
-    def create_pucsl_parser(self):
-        return self.__init__(POWER_CUT_URL)
+    @classmethod
+    def create_pucsl_parser(cls):
+        return cls(POWER_CUT_URL)
 
     def _get_page(self):
         return requests.get(self.url, verify=False).text
