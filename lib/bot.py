@@ -40,7 +40,7 @@ from lib.web_parser import PowerCutWebParser
 
 def start(update: Update, context: CallbackContext) -> None:
     """Sends explanation on how to use the bot."""
-    update.message.reply_text('Hi! Use /set <seconds> to set a timer')
+    update.message.reply_text('Hi! Use /schedule <Group letter> <YYYY-MM-DD> to check schedule')
 
 
 def alarm(context: CallbackContext) -> None:
