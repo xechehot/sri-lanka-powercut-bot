@@ -28,6 +28,9 @@ class PdfParser(object):
     def is_table_name(x):
         return x == 'Table 01' or x == 'Table 02'
 
+    def is_annex(self, x):
+        return self.is_match('Annex \d\d.*', x)
+
     @staticmethod
     def is_match(pattern, x):
         matches = re.match(pattern, x)
@@ -35,7 +38,7 @@ class PdfParser(object):
             return matches[0]
 
     def is_period(self, x):
-        return self.is_match('\d\d:\d\d\s*[–\–-]?\s*\d\d[:;]\d\d', x)
+        return self.is_match('\d?\d:\d\d\s*[–\–-]?\s*\d?\d[:;]\d\d', x)
 
     def is_group(self, x):
         return self.is_match('([A-Z]\s*,?\s*)+$', x)
@@ -52,9 +55,11 @@ class PdfParser(object):
         periods = []
         groups = []
         table_counts = 0
+        annex_counts = 0
         for line in txt.split('\n'):
+            if (table_counts == 2 or annex_counts == 1) and len(groups) == len(periods):
+                break
             sline = line.strip()
-            #     print(line)
             period = self.is_period(sline)
             if period:
                 periods.append(period)
@@ -66,8 +71,9 @@ class PdfParser(object):
             is_table = self.is_table_name(sline)
             if is_table:
                 table_counts += 1
-                if table_counts == 2:
-                    break
+            is_annex = self.is_annex(sline)
+            if is_annex:
+                annex_counts += 1
         if len(groups) != len(periods):
             raise PdfParseError(f'Groups count {len(groups)} is not equal periods count {len(periods)}')
         return groups, periods

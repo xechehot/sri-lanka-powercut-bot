@@ -24,3 +24,19 @@ def test_parse_groups_periods():
 
     expected_periods = ['15:30 - 16:30', '19:50 -21:30']
     assert pdf_parser.get_schedule(groups, periods, 'W') == expected_periods
+
+
+def test_parse_bad_pdf():
+    pdf_parser = PdfParser()
+    with open('content/E-01-03-2022-wrong.pdf', 'rb') as f:
+        res = pdf_parser.parse_pdf(f)
+    assert res is not None
+    groups, periods = res
+    assert len(groups) == 6
+    assert len(periods) == 6
+
+    expected_periods = ['8:30-11:30', '11:30-14:30', '14:30-17:30', '8:30-11:30', '11:30-14:30', '14:30-17:30']
+    assert periods == expected_periods
+    expected_groups = ['A', 'B', 'C', 'P,Q,R', 'S, T', 'U,V,W']
+    assert groups == expected_groups
+    assert pdf_parser.get_schedule(groups, periods, 'Q') == ['8:30-11:30']
