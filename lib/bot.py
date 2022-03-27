@@ -123,7 +123,7 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
 
     schedule = pdf_parser.get_schedule(groups, periods, group_name)
     message = StringIO()
-    message.write(f'**Powercut schedule for {dt} in {group_name}:**')
+    message.write(f'[Powercut schedule]({pdf_link}) for {dt} in {group_name}:')
     message.write(linesep)
     for s in schedule:
         message.write(s)
