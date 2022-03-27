@@ -108,6 +108,6 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
     message.write(f'**Powercut schedule for {dt} in {group_name}:**')
     message.write(linesep)
     for s in schedule:
-        message.write('-' + s)
+        message.write(s)
         message.write(linesep)
     update.message.reply_markdown(message.getvalue())
