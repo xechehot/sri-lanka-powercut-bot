@@ -15,7 +15,7 @@ class PdfParser(object):
     def __init__(self):
         pass
 
-    def _convert_pdf_to_txt(self, stream: BytesIO):
+    def _convert_pdf_to_txt(self, stream: BinaryIO):
         res_mgr = PDFResourceManager()
         ret_data = StringIO()
         txt_converter = TextConverter(res_mgr, ret_data, laparams=LAParams())

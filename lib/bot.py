@@ -17,7 +17,12 @@ Basic Alarm Bot example, sends a message after a set time.
 Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
+import logging
+import re
+from io import BytesIO, StringIO
+from os import linesep
 
+import requests
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
@@ -28,6 +33,10 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 # since context is an unused local variable.
 # This being an example and not having context present confusing beginners,
 # we decided to have it present as context.
+from lib.pdf_parser import PdfParser
+from lib.web_parser import PowerCutWebParser
+
+
 def start(update: Update, context: CallbackContext) -> None:
     """Sends explanation on how to use the bot."""
     update.message.reply_text('Hi! Use /set <seconds> to set a timer')
@@ -77,3 +86,28 @@ def unset(update: Update, context: CallbackContext) -> None:
     job_removed = remove_job_if_exists(str(chat_id), context)
     text = 'Timer successfully cancelled!' if job_removed else 'You have no active timer.'
     update.message.reply_text(text)
+
+
+def show_schedule(update: Update, context: CallbackContext) -> None:
+    web_parser = PowerCutWebParser.create_pucsl_parser()
+    pdf_parser = PdfParser()
+    pdf_list = web_parser.load_pdf_list()
+    logging.info(pdf_list)
+    dt, pdf_link = next(iter(pdf_list.items()))
+    logging.info('Selected %s, %s', dt, pdf_link)
+    pdf_file = requests.get(pdf_link, verify=False).content
+    groups, periods = pdf_parser.parse_pdf(BytesIO(pdf_file))
+
+    group_name = context.args[0].upper()
+    if not re.match('[A-Z]', group_name):
+        update.message.reply_text('Please select a proper group using one letter')
+        return
+
+    schedule = pdf_parser.get_schedule(groups, periods, group_name)
+    message = StringIO()
+    message.write(f'**Powercut schedule for {dt} in {group_name}:**')
+    message.write(linesep)
+    for s in schedule:
+        message.write('-' + s)
+        message.write(linesep)
+    update.message.reply_markdown(message.getvalue())

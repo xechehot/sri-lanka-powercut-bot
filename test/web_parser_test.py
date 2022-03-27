@@ -19,3 +19,8 @@ def test_load_pdf_list(monkeypatch):
 
     expected_url = 'https://www.pucsl.gov.lk/wp-content/uploads/2022/03/E-23-03-2022-Power-Interruption-Schedule-full.pdf'
     assert actual_pdf_map['2022-03-23'] == expected_url
+
+    d, link = next(iter(actual_pdf_map.items()))
+    assert d == '2022-03-27'
+
+

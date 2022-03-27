@@ -4,7 +4,7 @@ import logging
 from telegram.ext import CommandHandler, Updater, PicklePersistence
 
 from dotenv import dotenv_values
-from lib.bot import start, set_timer, unset
+from lib.bot import start, set_timer, unset, show_schedule
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -28,6 +28,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("help", start))
     dispatcher.add_handler(CommandHandler("set", set_timer))
     dispatcher.add_handler(CommandHandler("unset", unset))
+    dispatcher.add_handler(CommandHandler("schedule", show_schedule))
 
     # Start the Bot
     updater.start_polling()

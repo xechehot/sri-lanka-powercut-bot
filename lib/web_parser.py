@@ -1,3 +1,5 @@
+from typing import Dict
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -18,13 +20,13 @@ class PowerCutWebParser(object):
         return requests.get(self.url, verify=False).text
 
     @staticmethod
-    def _map_pdfs(hrefs):
+    def _map_pdfs(hrefs) -> Dict[str, str]:
         res = {}
         for url, name in hrefs:
             extracted_date = extract_link_date(url, name)
             if extracted_date:
                 res[extracted_date] = url
-        return res
+        return dict(sorted(res.items(), reverse=True))
 
     def load_pdf_list(self):
         page = self._get_page()
