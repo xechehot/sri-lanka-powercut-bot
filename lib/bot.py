@@ -19,6 +19,7 @@ bot.
 """
 import logging
 import re
+import traceback
 from io import BytesIO, StringIO
 from os import linesep
 
@@ -88,12 +89,29 @@ def unset(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(text)
 
 
+def error_handler(update: Update, context: CallbackContext) -> None:
+    logging.error(msg="Exception while handling an update:", exc_info=context.error)
+
+    # traceback.format_exception returns the usual python message about an exception, but as a
+    # list of strings rather than a single string, so we have to join them together.
+    tb_list = traceback.format_exception(None, context.error, context.error.__traceback__)
+    tb_string = ''.join(tb_list)
+    update.message.reply_text('Sorry, something went wrong')
+
+
 def show_schedule(update: Update, context: CallbackContext) -> None:
     web_parser = PowerCutWebParser.create_pucsl_parser()
     pdf_parser = PdfParser()
     pdf_list = web_parser.load_pdf_list()
     logging.info(pdf_list)
     dt, pdf_link = next(iter(pdf_list.items()))
+
+    if len(context.args) > 1:
+        date_candidate = context.args[1]
+        if date_candidate in pdf_list:
+            logging.info('Choosing date from message...')
+            dt = date_candidate
+            pdf_link = pdf_list[dt]
     logging.info('Selected %s, %s', dt, pdf_link)
     pdf_file = requests.get(pdf_link, verify=False).content
     groups, periods = pdf_parser.parse_pdf(BytesIO(pdf_file))
