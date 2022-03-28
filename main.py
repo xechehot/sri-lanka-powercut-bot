@@ -10,6 +10,7 @@ from os import environ
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+load_dotenv(".env")
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_LEVEL = environ.get('LOG_LEVEL', logging.INFO)
@@ -29,7 +30,6 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    load_dotenv(".env")
     """Run bot."""
     # Create the Updater and pass it your bot's token.
     persistence = PicklePersistence(filename='powercut.pickle')
