@@ -7,9 +7,23 @@ from dotenv import load_dotenv
 from lib.bot import start, set_timer, unset, show_schedule, error_handler
 from os import environ
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+import requests
+from urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_LEVEL = environ.get('LOG_LEVEL', logging.INFO)
+LOG_FILE = environ.get('LOG_FILE')
+
+if LOG_FILE:
+    logging.basicConfig(filename=LOG_FILE,
+                        filemode='a',
+                        format=LOG_FORMAT,
+                        level=LOG_LEVEL)
+else:
+    logging.basicConfig(
+        format=LOG_FORMAT, level=LOG_LEVEL
+    )
 
 logger = logging.getLogger(__name__)
 

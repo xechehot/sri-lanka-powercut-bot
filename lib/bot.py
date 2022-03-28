@@ -24,6 +24,7 @@ from io import BytesIO, StringIO
 from os import linesep
 
 import requests
+
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
@@ -101,10 +102,11 @@ def error_handler(update: Update, context: CallbackContext) -> None:
 
 
 def show_schedule(update: Update, context: CallbackContext) -> None:
+    logging.info('--> Requested schedule with args %s by chat_id %s', context.args, update.message.chat_id)
     web_parser = PowerCutWebParser.create_pucsl_parser()
     pdf_parser = PdfParser()
     pdf_list = web_parser.load_pdf_list()
-    logging.info(pdf_list)
+    logging.debug(pdf_list)
     dt, pdf_link = next(iter(pdf_list.items()))
 
     if len(context.args) > 1:
@@ -139,4 +141,5 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
         message.write('🕯')
         message.write(s)
         message.write(linesep)
+    logging.info('<-- Schedule for %s in %s is %s', dt, group_name, schedule)
     update.message.reply_markdown(message.getvalue())
