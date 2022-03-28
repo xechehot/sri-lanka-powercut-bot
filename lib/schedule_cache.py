@@ -6,9 +6,9 @@ logger = logging.getLogger(__name__)
 
 
 class ScheduleCache(object):
-    cache: Dict[str, Tuple[datetime, Tuple[List, List]]]
+    cache: Dict[Tuple[str, str], Tuple[datetime, Tuple[List, List]]]
 
-    def __init__(self, init_fun: Callable[[str], Tuple[List, List]],
+    def __init__(self, init_fun: Callable[[Tuple[str, str]], Tuple[List, List]],
                  expiration_seconds: int):
         self.cache = {}
         self.init_fun = init_fun
@@ -21,7 +21,7 @@ class ScheduleCache(object):
     def is_expired(self, created):
         return (self.now() - created).seconds > self.expiration_seconds
 
-    def get(self, key: str):
+    def get(self, key: Tuple[str, str]):
         value = self.cache.get(key)
         created, payload = None, None
         if value:

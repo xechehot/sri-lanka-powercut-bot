@@ -2,6 +2,8 @@ import time
 
 from lib.schedule_cache import ScheduleCache
 
+KEY = 'key', 'link'
+
 
 def test_value_cached():
     execution_list = []
@@ -13,11 +15,11 @@ def test_value_cached():
 
     schedule_cache = ScheduleCache(execute, 100)
     assert len(execution_list) == 0
-    actual_payload = schedule_cache.get('KEY')
+    actual_payload = schedule_cache.get(KEY)
     assert actual_payload is not None
     assert actual_payload == expected_payload
     assert len(execution_list) == 1
-    actual_payload = schedule_cache.get('KEY')
+    actual_payload = schedule_cache.get(KEY)
     assert actual_payload is not None
     assert actual_payload == expected_payload
     assert len(execution_list) == 1
@@ -37,16 +39,16 @@ def test_invalidate_cached_value():
     schedule_cache = ScheduleCache(execute, 1)
 
     assert len(execution_list) == 0
-    actual_payload = schedule_cache.get('KEY')
+    actual_payload = schedule_cache.get(KEY)
     assert actual_payload is not None
     assert actual_payload == invalidated_payload
     assert len(execution_list) == 1
-    actual_payload = schedule_cache.get('KEY')
+    actual_payload = schedule_cache.get(KEY)
     assert actual_payload is not None
     assert actual_payload == invalidated_payload
     assert len(execution_list) == 1
     time.sleep(2)
-    actual_payload = schedule_cache.get('KEY')
+    actual_payload = schedule_cache.get(KEY)
     assert actual_payload is not None
     assert actual_payload == new_payload
     assert len(execution_list) == 2

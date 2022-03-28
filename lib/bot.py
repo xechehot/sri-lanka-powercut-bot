@@ -36,8 +36,8 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 # This being an example and not having context present confusing beginners,
 # we decided to have it present as context.
 from lib.exception import PdfParseError
-from lib.pdf_parser import PdfParser
 from lib.web_parser import PowerCutWebParser
+from service.schedule_cashe_service import schedule_cache, pdf_parser
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -104,7 +104,6 @@ def error_handler(update: Update, context: CallbackContext) -> None:
 def show_schedule(update: Update, context: CallbackContext) -> None:
     logging.info('--> Requested schedule with args %s by chat_id %s', context.args, update.message.chat_id)
     web_parser = PowerCutWebParser.create_pucsl_parser()
-    pdf_parser = PdfParser()
     pdf_list = web_parser.load_pdf_list()
     logging.debug(pdf_list)
     dt, pdf_link = next(iter(pdf_list.items()))
@@ -121,9 +120,8 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
             update.message.reply_text(f'Sorry, schedule for date "{date_candidate}" is not available.')
             return
     logging.info('Selected %s, %s', dt, pdf_link)
-    pdf_file = requests.get(pdf_link, verify=False).content
     try:
-        groups, periods = pdf_parser.parse_pdf(BytesIO(pdf_file))
+        groups, periods = schedule_cache.get((dt, pdf_link))
     except PdfParseError:
         update.message.reply_markdown(f'Parsing pdf file failed, but you can see it [here]({pdf_link}) manually.')
         return
