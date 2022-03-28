@@ -134,7 +134,9 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
     message = StringIO()
     message.write(f'[Powercut schedule]({pdf_link}) for {dt} in {group_name}:')
     message.write(linesep)
+    message.write(linesep)
     for s in schedule:
+        message.write('🕯')
         message.write(s)
         message.write(linesep)
     update.message.reply_markdown(message.getvalue())
