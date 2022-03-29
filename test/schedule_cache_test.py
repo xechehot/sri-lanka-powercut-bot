@@ -1,6 +1,6 @@
 import time
 
-from lib.schedule_cache import ScheduleCache
+from lib.schedule_cache import ExpiringCache
 
 KEY = 'key', 'link'
 
@@ -13,7 +13,7 @@ def test_value_cached():
         execution_list.append(0)
         return expected_payload
 
-    schedule_cache = ScheduleCache(execute, 100)
+    schedule_cache = ExpiringCache(execute, 100)
     assert len(execution_list) == 0
     actual_payload = schedule_cache.get(KEY)
     assert actual_payload is not None
@@ -36,7 +36,7 @@ def test_invalidate_cached_value():
         execution_list.append(0)
         return payload
 
-    schedule_cache = ScheduleCache(execute, 1)
+    schedule_cache = ExpiringCache(execute, 1)
 
     assert len(execution_list) == 0
     actual_payload = schedule_cache.get(KEY)

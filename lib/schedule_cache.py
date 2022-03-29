@@ -1,14 +1,14 @@
 import logging
 from datetime import datetime
-from typing import Dict, Tuple, List, Callable
+from typing import Dict, Tuple, List, Callable, Any
 
 logger = logging.getLogger(__name__)
 
 
-class ScheduleCache(object):
-    cache: Dict[Tuple[str, str], Tuple[datetime, Tuple[List, List]]]
+class ExpiringCache(object):
+    cache: Dict[Tuple[str, str], Tuple[datetime, Any]]
 
-    def __init__(self, init_fun: Callable[[Tuple[str, str]], Tuple[List, List]],
+    def __init__(self, init_fun: Callable[[Tuple[str, str]], Any],
                  expiration_seconds: int):
         self.cache = {}
         self.init_fun = init_fun
@@ -18,7 +18,7 @@ class ScheduleCache(object):
     def now():
         return datetime.now()
 
-    def is_expired(self, created):
+    def is_expired(self, created) -> bool:
         return (self.now() - created).seconds > self.expiration_seconds
 
     def get(self, key: Tuple[str, str]):

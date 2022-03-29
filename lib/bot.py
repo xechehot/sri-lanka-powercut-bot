@@ -36,8 +36,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 # This being an example and not having context present confusing beginners,
 # we decided to have it present as context.
 from lib.exception import PdfParseError
-from lib.web_parser import PowerCutWebParser
-from service.schedule_cashe_service import schedule_cache, pdf_parser
+from service.schedule_cashe_service import schedule_cache, pdf_parser, pdf_list_cache, POWER_CUT_PAGE_KEY
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -103,9 +102,7 @@ def error_handler(update: Update, context: CallbackContext) -> None:
 
 def show_schedule(update: Update, context: CallbackContext) -> None:
     logging.info('--> Requested schedule with args %s by chat_id %s', context.args, update.message.chat_id)
-    web_parser = PowerCutWebParser.create_pucsl_parser()
-    pdf_list = web_parser.load_pdf_list()
-    logging.debug(pdf_list)
+    pdf_list = pdf_list_cache.get(POWER_CUT_PAGE_KEY)
     dt, pdf_link = next(iter(pdf_list.items()))
 
     if len(context.args) > 1:
