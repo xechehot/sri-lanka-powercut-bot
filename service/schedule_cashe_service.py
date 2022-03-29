@@ -4,6 +4,7 @@ import logging
 
 import requests
 
+from lib.exception import UpdateExpiredValueError
 from lib.pdf_parser import PdfParser
 from lib.schedule_cache import ExpiringCache
 from os import environ
@@ -36,10 +37,14 @@ schedule_cache = ExpiringCache(parse_pdf_file,
 
 
 def get_pdf_list(key):
-    pdf_list = web_parser.load_pdf_list()
-    logger.debug(pdf_list)
-    return pdf_list
+    try:
+        pdf_list = web_parser.load_pdf_list()
+        logger.debug(pdf_list)
+        return pdf_list
+    except requests.exceptions.ConnectionError as ex:
+        raise UpdateExpiredValueError(ex)
 
 
 pdf_list_cache = ExpiringCache(get_pdf_list,
-                               expiration_seconds=PDF_LIST_CACHE_EXPIRATION)
+                               expiration_seconds=PDF_LIST_CACHE_EXPIRATION,
+                               fallback_on_update=True)

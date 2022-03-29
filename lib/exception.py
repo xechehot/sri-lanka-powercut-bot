@@ -4,3 +4,11 @@ class PowercutBotException(Exception):
 
 class PdfParseError(PowercutBotException):
     pass
+
+
+class ExpiringCacheException(PowercutBotException):
+    pass
+
+
+class UpdateExpiredValueError(ExpiringCacheException):
+    pass

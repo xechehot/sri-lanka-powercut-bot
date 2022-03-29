@@ -17,7 +17,7 @@ class PowerCutWebParser(object):
         return cls(POWER_CUT_URL)
 
     def _get_page(self):
-        return requests.get(self.url, verify=False).text
+        return requests.get(self.url, verify=False, timeout=10).text
 
     @staticmethod
     def _map_pdfs(hrefs) -> Dict[str, str]:
