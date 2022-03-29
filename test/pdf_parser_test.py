@@ -1,6 +1,7 @@
 from io import BytesIO
 
 from lib.pdf_parser import PdfParser
+from lib.schedule_planner import SchedulePlanner
 
 
 def test_is_period():
@@ -23,7 +24,7 @@ def test_parse_groups_periods():
     assert len(periods) == 14
 
     expected_periods = ['15:30 - 16:30', '19:50 -21:30']
-    assert pdf_parser.get_schedule(groups, periods, 'W') == expected_periods
+    assert SchedulePlanner().get_schedule(groups, periods, 'W') == expected_periods
 
 
 def test_parse_bad_pdf():
@@ -39,4 +40,4 @@ def test_parse_bad_pdf():
     assert periods == expected_periods
     expected_groups = ['A', 'B', 'C', 'P,Q,R', 'S, T', 'U,V,W']
     assert groups == expected_groups
-    assert pdf_parser.get_schedule(groups, periods, 'Q') == ['8:30-11:30']
+    assert SchedulePlanner().get_schedule(groups, periods, 'Q') == ['8:30-11:30']

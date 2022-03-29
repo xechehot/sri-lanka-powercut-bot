@@ -36,7 +36,8 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 # This being an example and not having context present confusing beginners,
 # we decided to have it present as context.
 from lib.exception import PdfParseError
-from service.schedule_cashe_service import schedule_cache, pdf_parser, pdf_list_cache, POWER_CUT_PAGE_KEY
+from service.schedule_cashe_service import schedule_cache, pdf_parser, pdf_list_cache, POWER_CUT_PAGE_KEY, \
+    schedule_planner
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -127,14 +128,7 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Please select a proper group using one letter')
         return
 
-    schedule = pdf_parser.get_schedule(groups, periods, group_name)
-    message = StringIO()
-    message.write(f'[Powercut schedule]({pdf_link}) for {dt} in {group_name}:')
-    message.write(linesep)
-    message.write(linesep)
-    for s in schedule:
-        message.write('🕯')
-        message.write(s)
-        message.write(linesep)
+    schedule = schedule_planner.get_schedule(groups, periods, group_name)
+    schedule_message = schedule_planner.get_schedule_message(schedule, pdf_link, dt, group_name)
     logging.info('<-- Schedule for %s in %s is %s', dt, group_name, schedule)
-    update.message.reply_markdown(message.getvalue())
+    update.message.reply_markdown(schedule_message)

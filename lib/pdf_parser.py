@@ -43,13 +43,6 @@ class PdfParser(object):
     def is_group(self, x):
         return self.is_match('([A-Z]\s*,?\s*)+$', x)
 
-    def get_schedule(self, groups, periods, group_name):
-        res = []
-        for g, p in zip(groups, periods):
-            if group_name in g:
-                res.append(p)
-        return res
-
     def parse_pdf(self, stream: BinaryIO):
         txt = self._convert_pdf_to_txt(stream)
         periods = []

@@ -9,6 +9,7 @@ from lib.pdf_parser import PdfParser
 from lib.schedule_cache import ExpiringCache
 from os import environ
 
+from lib.schedule_planner import SchedulePlanner
 from lib.web_parser import PowerCutWebParser
 
 logger = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ POWER_CUT_PAGE_KEY = 'POWER_CUT_PAGE'
 
 pdf_parser = PdfParser()
 web_parser = PowerCutWebParser.create_pucsl_parser()
+schedule_planner = SchedulePlanner()
 
 
 def parse_pdf_file(key: Tuple[str, str]):
