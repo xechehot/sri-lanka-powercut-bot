@@ -4,7 +4,7 @@ import logging
 from telegram.ext import CommandHandler, Updater, PicklePersistence
 
 from dotenv import load_dotenv
-from lib.bot import start, set_timer, unset, show_schedule, error_handler
+from lib.bot import start, set_timer, unset, show_schedule, error_handler, subscribe_on_updates
 from os import environ
 
 import requests
@@ -44,6 +44,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("set", set_timer))
     dispatcher.add_handler(CommandHandler("unset", unset))
     dispatcher.add_handler(CommandHandler("schedule", show_schedule))
+    dispatcher.add_handler(CommandHandler("subscribe", subscribe_on_updates))
     dispatcher.add_error_handler(error_handler)
 
     # Start the Bot

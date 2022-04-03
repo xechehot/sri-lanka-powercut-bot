@@ -41,3 +41,5 @@ def test_parse_bad_pdf():
     expected_groups = ['A', 'B', 'C', 'P,Q,R', 'S, T', 'U,V,W']
     assert groups == expected_groups
     assert SchedulePlanner().get_schedule(groups, periods, 'Q') == ['8:30-11:30']
+
+

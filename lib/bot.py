@@ -20,6 +20,7 @@ bot.
 import logging
 import re
 import traceback
+from datetime import timedelta
 from io import BytesIO, StringIO
 from os import linesep
 
@@ -28,7 +29,6 @@ import requests
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
-
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 # Best practice would be to replace context with an underscore,
@@ -36,6 +36,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 # This being an example and not having context present confusing beginners,
 # we decided to have it present as context.
 from lib.exception import PdfParseError
+from lib.utils import is_group_name
 from service.schedule_cashe_service import schedule_cache, pdf_parser, pdf_list_cache, POWER_CUT_PAGE_KEY, \
     schedule_planner
 
@@ -104,6 +105,7 @@ def error_handler(update: Update, context: CallbackContext) -> None:
 def show_schedule(update: Update, context: CallbackContext) -> None:
     logging.info('--> Requested schedule with args %s by chat_id %s', context.args, update.message.chat_id)
     pdf_list = pdf_list_cache.get(POWER_CUT_PAGE_KEY)
+    # Тут ожидается самая последняя дата, так как pdf_list - это упорядоченный dict
     dt, pdf_link = next(iter(pdf_list.items()))
 
     if len(context.args) > 1:
@@ -124,7 +126,7 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
         update.message.reply_markdown(f'Parsing pdf file failed, but you can see it [here]({pdf_link}) manually.')
         return
     group_name = context.args[0].upper()
-    if not re.match('[A-Z]', group_name):
+    if not is_group_name(group_name):
         update.message.reply_text('Please select a proper group using one letter')
         return
 
@@ -132,3 +134,36 @@ def show_schedule(update: Update, context: CallbackContext) -> None:
     schedule_message = schedule_planner.get_schedule_message(schedule, pdf_link, dt, group_name)
     logging.info('<-- Schedule for %s in %s is %s', dt, group_name, schedule)
     update.message.reply_markdown(schedule_message)
+
+
+def get_schedule_updates(context: CallbackContext) -> None:
+    """Send the alarm message."""
+    job = context.job
+    group_name = job.context['group_name']
+    context.bot.send_message(job.context['chat_id'], text=f'Updates on group {group_name}')
+
+
+def subscribe_on_updates(update: Update, context: CallbackContext) -> None:
+    def get_job_name(chat_id, group_name):
+        return f'SUBSCRIBE_SCHEDULE_UPDATES_{chat_id}_{group_name}'
+    chat_id = update.message.chat_id
+    logging.info('--> Requested subscribe on update with args %s by chat_id %s', context.args, chat_id)
+    if len(context.args) == 0:
+        update.message.reply_text('Please select a group using one letter')
+        return
+    group_name = context.args[0].upper()
+    if not is_group_name(group_name):
+        update.message.reply_text('Please select a proper group using one letter')
+        return
+    old_group_name = context.user_data['group_name']
+    context.user_data['group_name'] = group_name
+    job_removed = remove_job_if_exists(get_job_name(chat_id, old_group_name), context)
+    context.job_queue.run_repeating(get_schedule_updates,
+                                    interval=timedelta(seconds=20),
+                                    context={'chat_id': chat_id,
+                                             'group_name': group_name
+                                             },
+                                    name=get_job_name(chat_id, group_name))
+    logging.info('<-- Subscribed chat_id %s for group %s', update.message.chat_id, group_name)
+    update.message.reply_text(f'Successfully subscribed for updates of schedule in group {group_name}.\n'
+                              'You will be notified when new schedule appears.')

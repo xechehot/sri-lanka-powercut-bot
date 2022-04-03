@@ -39,3 +39,7 @@ class SchedulePlanner(object):
             message.write(s)
             message.write(linesep)
         return message.getvalue()
+
+    def should_notify_by_new_schedule(self, pdf_list, last_notify_dt):
+        available_dt, available_pdf_link = next(iter(pdf_list.items()))
+        return last_notify_dt is None or last_notify_dt < available_dt
