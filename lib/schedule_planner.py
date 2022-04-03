@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 from io import StringIO
 from os import linesep
-from zoneinfo import ZoneInfo
+# from zoneinfo import ZoneInfo
 
 
 class SchedulePlanner(object):
-    tz_info = ZoneInfo('Asia/Colombo')
+    # tz_info = ZoneInfo('Asia/Colombo')
+    tz_info = None
     dt_format = '%Y-%m-%d'
 
     def now(self) -> datetime:
