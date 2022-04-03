@@ -49,8 +49,6 @@ def test_parse_bad_pdf2():
         res = pdf_parser.parse_pdf(f)
     assert res is not None
     groups, periods = res
-    print(periods)
-    print(groups)
     assert len(groups) == 9
     assert len(periods) == 9
 
@@ -62,5 +60,22 @@ def test_parse_bad_pdf2():
     assert SchedulePlanner().get_schedule(groups, periods, 'Q') == ['10.00-13.30', '18.00-19.30']
 
 
+def test_parse_bad_pdf3():
+    pdf_parser = PdfParser()
+    with open('content/E-01-04-2022.pdf', 'rb') as f:
+        res = pdf_parser.parse_pdf(f)
+    assert res is not None
+    groups, periods = res
+    assert len(groups) == 17
+    assert len(periods) == 17
+
+    expected_periods = ['04:00-06:00', '06:00-08:00', '08:00 – 12:00', '12:00– 16:00', '16:00-18:00', '18:00-22:00', '22:00-24:00', '04:00-06:00', '06:00-08:00', '08:00 – 12:00', '12:00 - 16:00', '16:00 – 18::00', '18:00-22:00', '22:00-24:00', '05:30 – 09:00', '16:00-18:00', '06:00-09:30']
+
+    assert periods == expected_periods
+    expected_groups = ['A,B,C,D,E,F', 'G,H,I, J, K, L', 'A,B,C,D,E,F', 'G,H,I, J, K, L', 'A,B,C,D,E,F', 'A, B, C,D,E,F, G,H,I, J, K, L', 'G,H,I, J, K, L', 'P,Q,R,S', 'T,U,V,W', 'P,Q,R,S', 'T,U,V,W', 'P,Q,R,S', 'P, Q,R,S, T,U,V,W', 'T,U,V,W', 'M,N,O,X,Y,Z', 'M,N,O,X,Y,Z', 'CC']
+    assert groups == expected_groups
+    assert SchedulePlanner().get_schedule(groups, periods, 'W') == ['06:00-08:00', '12:00 - 16:00', '18:00-22:00', '22:00-24:00']
+
+
 if __name__ == '__main__':
-    test_parse_bad_pdf2()
+    test_parse_bad_pdf3()
