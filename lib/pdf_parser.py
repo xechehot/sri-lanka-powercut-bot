@@ -38,10 +38,10 @@ class PdfParser(object):
             return matches[0]
 
     def is_period(self, x):
-        return self.is_match('\d?\d:\d\d\s*[–\–-]?\s*\d?\d[:;]\d\d', x)
+        return self.is_match('\d?\d[:;.]\d\d\s*[–\–-]?\s*\d?\d[:;.]\d\d', x)
 
     def is_group(self, x):
-        return self.is_match('([A-Z]\s*,?\s*)+$', x)
+        return self.is_match('([A-Z]\s*,?\s*)+$', x) or self.is_match('CC1\s*', x)
 
     def parse_pdf(self, stream: BinaryIO):
         txt = self._convert_pdf_to_txt(stream)
@@ -50,6 +50,7 @@ class PdfParser(object):
         table_counts = 0
         annex_counts = 0
         for line in txt.split('\n'):
+            print(line)
             if (table_counts == 2 or annex_counts == 1) and len(groups) == len(periods):
                 break
             sline = line.strip()

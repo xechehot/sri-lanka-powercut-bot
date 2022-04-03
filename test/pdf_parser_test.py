@@ -43,3 +43,24 @@ def test_parse_bad_pdf():
     assert SchedulePlanner().get_schedule(groups, periods, 'Q') == ['8:30-11:30']
 
 
+def test_parse_bad_pdf2():
+    pdf_parser = PdfParser()
+    with open('content/E-04-04-2022.pdf', 'rb') as f:
+        res = pdf_parser.parse_pdf(f)
+    assert res is not None
+    groups, periods = res
+    print(periods)
+    print(groups)
+    assert len(groups) == 9
+    assert len(periods) == 9
+
+    expected_periods = ['10.00-13.30', '13.30-17.00', '18.00-19.30', '19.30-21.00', '10.00-13.30', '13.30-17.00', '18.00-19.30', '19.30-21.00', '06:00-10:00']
+
+    assert periods == expected_periods
+    expected_groups = ['A, B, C, D, E, F', 'G, H, I, J, K, L', 'A, B, C, D, E, F', 'G, H, I, J, K, L', 'P,Q,R,S', 'T,U,V,W', 'P,Q,R,S', 'T,U,V,W', 'CC1']
+    assert groups == expected_groups
+    assert SchedulePlanner().get_schedule(groups, periods, 'Q') == ['10.00-13.30', '18.00-19.30']
+
+
+if __name__ == '__main__':
+    test_parse_bad_pdf2()
